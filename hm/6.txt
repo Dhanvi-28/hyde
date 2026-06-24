@@ -1,45 +1,87 @@
-import pandas as pd
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-iris = load_iris(return_X_y=False, as_frame=True)
-
-print(iris.keys())
-
-display(iris.data)
-
-iris.target.value_counts()
-
-iris.data.info()
-iris.data.describe()
-iris.data.assign(target=iris.target).corr()
-X_train, X_test, y_train, y_test = train_test_split(
-iris.data, iris.target, test_size=0.2, random_state=42, stratify=iris.target)
-print("Train set shape:", X_train.shape)
-print("Test set shape:", X_test.shape)
-dtree_clf = DecisionTreeClassifier(max_depth=2, random_state=42)
-
-dtree_clf.fit(X_train, y_train)
-
-plot_tree(dtree_clf, feature_names=iris.feature_names, class_names=iris.target_names, filled=True)
-predictions = dtree_clf.predict(X_test[:3])
-predictions_proba = dtree_clf.predict_proba(X_test[:3])
-pd.DataFrame(predictions_proba).reset_index(
-drop=True, inplace=False).assign(Predicted_Class= predictions).assign(Acutal_Class=y_test[:3].values)
-dtree_clf = DecisionTreeClassifier(random_state=42)
-print("CV Score of the Default Model: {:.2f}%".format(
-cross_val_score(dtree_clf, X_train, y_train, cv=5).mean() * 100))
-dtree_clf.get_params()
-param_grid = {
-"criterion": ["gini", "entropy"],
-"max_depth": [None, 2, 3, 4, 5],
-"max_features": [None, 2, 3],
-"min_samples_leaf": [1, 2, 3, 4],
-"min_samples_split": [2, 3, 4]
+PROGRAM 15: Implement 0/1 Knapsack using Dynamic Programming.
+import java.util.Scanner;
+public class KnapD 
+{
+	static final int MAX = 20; // max. no. of objects
+	static int w[]; // weights 0 to n-1
+	static int p[]; // profits 0 to n-1
+	static int n; // no. of objects
+	static int M; // capacity of Knapsack
+	static int V[][]; // DP solution process - table
+	static int Keep[][]; // to get objects in optimal solution
+	public static void main(String args[]) 
+	{
+		w = new int[MAX];
+		p = new int[MAX];
+		V = new int [MAX][MAX];
+		Keep = new int[MAX][MAX];
+		int optsoln;
+		ReadObjects();
+		for (int i = 0; i <= M; i++)
+			V[0][i] = 0;
+		for (int i = 0; i <= n; i++)
+			V[i][0] = 0;
+		optsoln = Knapsack();
+	System.out.println("Optimal solution = " + optsoln);
+	}
+	static int Knapsack() 
+	{
+		int r; // remaining Knapsack capacity
+		for (int i = 1; i <= n; i++){
+			for (int j = 0; j <= M; j++){
+				if ((w[i] <= j) && (p[i] + V[i - 1][j - w[i]] > V[i - 1][j])) 
+				{
+					V[i][j] = p[i] + V[i - 1][j - w[i]];
+					Keep[i][j] = 1;
+				} 
+				else 
+				{
+					V[i][j] = V[i - 1][j];
+					Keep[i][j] = 0;
+				}}}
+		//Find the objects included in the Knapsack
+		r = M;
+		System.out.println("Items = ");
+		for (int i = n; i > 0; i--) // start from Keep[n,M]
+		{
+			if (Keep[i][r] == 1) 
+			{
+				System.out.println(i + " ");
+				r = r - w[i];
+			}
+			System.out.println();
+		}
+		return V[n][M];
+	}
+	static void ReadObjects() 
+	{
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Knapsack Problem - Dynamic Programming Solution: ");
+		System.out.println("Enter the max capacity of knapsack: ");
+		M = scanner.nextInt();
+		System.out.println("Enter number of objects: ");
+		n = scanner.nextInt();
+		System.out.println("Enter Weights: ");
+		for (int i = 1; i <= n; i++)
+			w[i] = scanner.nextInt();
+		System.out.println("Enter Profits: ");
+		for (int i = 1; i <= n; i++)
+			p[i] = scanner.nextInt();
+		scanner.close();
+	}
 }
-grid_search_cv = GridSearchCV(DecisionTreeClassifier(random_state=42), param_grid=param_grid)
-grid_search_cv.fit(X_train, y_train)
-grid_search_cv.best_score_
-The avove CV performance of the tuned classifier was found to be better than that of the classifier with default parameters.
-grid_search_cv.best_params_
-print("Test Accuracy: {:.2f}%".format(grid_search_cv.best_estimator_.score(X_test, y_test) * 100))
+Output:
+Knapsack Problem - Dynamic Programming Solution: 
+Enter the max capacity of knapsack: 
+5
+Enter number of objects: 
+4
+Enter Weights: 
+2 1 3 2
+Enter Profits: 
+12 10 20 15
+Items = 
+4 
+2 
+1 
+Optimal solution = 37
