@@ -1,39 +1,100 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-def get_penalty_weights(query_x, X, tau):
-	m = X.shape[0]
-	W = np.mat(np.eye(m))
-	for i in range(m):
-		x = X[i]
-		W[i, i] = np.exp(np.dot((x - query_x), (x - query_x).T) / (-2 * tau * tau))
-	return W
-def predict(X, y, query_x, tau):
-	m = X.shape[0]
-X_transformed = np.hstack((np.reshape(X, (-1, 1)), np.ones((m, 1))))
-query_x_transformed = np.mat([query_x, 1])
-penalty_weights = get_penalty_weights(query_x_transformed, X_transformed, tau)
-y_transformed = np.reshape(y, (-1, 1))
-theta = np.linalg.pinv(
-X_transformed.T * (penalty_weights * X_transformed)) * (X_transformed.T * (penalty_weights * y_transformed))
-prediction = np.dot(query_x_transformed, theta)
-return theta, prediction
+MODULE 3
+PROGRAM 9: Write a program to find maximum profit using the Knapsack technique.
 
-data = pd.read_csv("./../../Data/curve.csv")
-X = data.x.values
-y = data.y.values
-plt.scatter(X, y)
-tau=0.1
-X_test=np.sort(np.random.randint(1,100,size=X.shape[0]))
-predictions=[]
-for query_instance in X_test:
-theta, prediction = predict(X, y, query_instance, tau)
-predictions.append(prediction.A[0][0])
-plt.scatter(X, y, color = 'blue', alpha=1.0, label="Actual")
-plt.plot(X_test, predictions, color='red', label="Predicted")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.title("Locally Weighted Linear Regression with Tau set to {:.2f}".format(tau))
-plt.legend()
-plt.show()
+import java.util.Scanner;
+class KObject // Knapsack object details
+{
+	float w;
+	float p;
+	float r;
+}
+
+public class KnapG {
+
+	static final int MAX = 20; // max. no. of objects
+	static int n; // no. of objects
+	static float M; // capacity of Knapsack
+	public static void main(String[] args) {
+			
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Enter number of objects: ");
+		n = scanner.nextInt();
+		KObject[] obj = new KObject[n];
+		for(int i = 0; i<n;i++)
+		obj[i] = new KObject(); // allocate memory for members
+		ReadObjects(obj);
+		Knapsack(obj);
+	}
+
+	static void ReadObjects(KObject obj[]) 
+	{
+		KObject temp = new KObject();
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Enter the max capacity of knapsack: ");
+		M = scanner.nextFloat();
+		System.out.println("Enter Weights: ");
+		for (int i = 0; i < n; i++)
+			obj[i].w = scanner.nextFloat();
+		System.out.println("Enter Profits: ");
+		for (int i = 0; i < n; i++)
+			obj[i].p = scanner.nextFloat();
+		for (int i = 0; i < n; i++)
+			obj[i].r = obj[i].p / obj[i].w;
+		// sort objects in descending order, based on p/w ratio
+		for(int i = 0; i<n-1; i++){
+			for(int j=0; j<n-1-i; j++)
+			{
+				if(obj[j].r < obj[j+1].r)
+				{
+					temp = obj[j];
+					obj[j] = obj[j+1];
+					obj[j+1] = temp;
+				}
+			}
+		}
+	}
+	static void Knapsack(KObject kobj[]) 
+	{
+		float x[] = new float[MAX];
+		float totalprofit;
+		int i;
+		float U; // U place holder for M
+		U = M;
+		totalprofit = 0;
+		for (i = 0; i < n; i++)
+			x[i] = 0;
+		for (i = 0; i < n; i++) {
+			if (kobj[i].w > U)
+				break;
+			else 
+			{
+				x[i] = 1;
+				totalprofit = totalprofit + kobj[i].p;
+				U = U - kobj[i].w;
+			}
+		}
+		System.out.println("i = " + i);
+		if (i < n)
+			x[i] = U / kobj[i].w;
+		totalprofit = totalprofit + (x[i] * kobj[i].p);
+		System.out.println("The Solution vector, x[]: ");
+		for (i = 0; i < n; i++)
+			System.out.print(x[i] + " ");
+		System.out.println("\nTotal profit is = " + totalprofit);
+	}
+
+}
+
+Output:
+Enter number of objects: 
+3
+Enter the max capacity of knapsack: 
+20
+Enter Weights: 
+18 15 10
+Enter Profits: 
+25 24 15
+i = 1
+The Solution vector, x[]: 
+1.0 0.5 0.0 
+Total profit is = 31.5 
